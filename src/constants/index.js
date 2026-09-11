@@ -58,6 +58,10 @@ import {
   orbitai3,
   orbitai4,
   orbitai5,
+  wmsmenu,
+  wmsproduction,
+  wmsfindinventory,
+  wmsdiagnostics,
   expensetrackerpic1,
   python,
   sqlicon,
@@ -272,10 +276,17 @@ const projects = [
       "DEACOM XML Protocol", "Zebra DataWedge", "Honeywell Imager SDK",
       "GitHub Actions", "Reverse engineering (.NET decompilation)",
     ],
-    // Stand-in cover: swap for a real scanner screenshot when one is captured.
-    image: deacom,
+    // Scanner screens are portrait (360dp wide), so the card must letterbox rather than
+    // crop -- object-cover on a 350x725 image throws away most of the screen.
+    image: wmsmenu,
+    imageContain: true,
+    images: [
+      { src: wmsmenu, caption: "Main menu — the five categories left after the SOP audit, with the environment badge showing TEST" },
+      { src: wmsproduction, caption: "Production — Pre-Stage, Final Staging, Issue Job, De-Issue, and Input Production" },
+      { src: wmsfindinventory, caption: "17) Find Inventory — a part's stock across 151 locations, split by inventory and reserved" },
+      { src: wmsdiagnostics, caption: "Diagnostics — host reachability, client version acceptance, sign-in state, and a scanner test that posts nothing" },
+    ],
     source_code_link: "",
-    videoUrl: "",
   },
   {
     name: "Demand Forecasting — Build vs Buy",

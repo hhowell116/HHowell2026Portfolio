@@ -64,6 +64,11 @@ import orbitai2 from "./orbitai2.png";
 import orbitai3 from "./orbitai3.png";
 import orbitai4 from "./orbitai4.png";
 import orbitai5 from "./orbitai5.png";
+
+import wmsmenu from "./wmsmenu.png";
+import wmsproduction from "./wmsproduction.png";
+import wmsfindinventory from "./wmsfindinventory.png";
+import wmsdiagnostics from "./wmsdiagnostics.png";
 import expensetrackerpic1 from "./expensetrackerpic1.png";
 import python from "./pythonpng.png";
 import sqlicon from "./sqlnewicon.png";
@@ -135,6 +140,10 @@ export {
   orbitai3,
   orbitai4,
   orbitai5,
+  wmsmenu,
+  wmsproduction,
+  wmsfindinventory,
+  wmsdiagnostics,
   expensetrackerpic1,
   python,
   sqlicon,
