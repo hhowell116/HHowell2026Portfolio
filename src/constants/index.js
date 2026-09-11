@@ -253,7 +253,14 @@ const projects = [
     dataIntegration:
       "Host: one Deacom HTTP endpoint per installation (Test and Production), spoken in Deacom's XML command protocol. Initialize handshake → sign-in with real Deacom credentials → per-command posts and reads.\n\nProtocol layer: the core-protocol module has no Android dependencies and is exercised through a fake transport, so command construction and reply parsing are tested with no device and no host. Command shapes and the literals the host pins were read off the decompiled legacy client.\n\nScanning: core-scanning abstracts the imager behind a common ScanHost interface. DataWedgeScanner handles Zebra's broadcast intents; HoneywellImager wraps the vendor SDK. Gradle picks the implementation by source set, so a build without the Honeywell SDK still compiles.\n\nTargets: Honeywell CT47 fleet on Android 13 (minSdk 26, targetSdk 33 — the version the device actually runs). Layouts are measured at 360dp wide, verified on both the CT47 emulator and a Zebra TC52 at 720×1280 @ 320dpi, which is the same 360dp.",
     inProgress: true,
-    hideVideo: true,
+    // Paste Loom links here exactly as the Share button gives them -- the modal converts
+    // /share/ links to embeddable /embed/ ones itself. One entry per function walkthrough;
+    // the caption becomes the button label, so keep it to a couple of words.
+    //   videos: [
+    //     { url: "https://www.loom.com/share/<id>", caption: "Receive PO" },
+    //     { url: "https://www.loom.com/share/<id>", caption: "Issue Job" },
+    //   ],
+    videos: [],
     tags: [
       { name: "kotlin", color: "blue-text-gradient" },
       { name: "erp-integration", color: "green-text-gradient" },

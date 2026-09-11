@@ -1,9 +1,50 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { github } from "../assets";
 
+// A Loom link can be copied in several shapes and only one of them renders in an
+// iframe: the /embed/ one. Rather than require the right shape in constants, accept
+// whatever Loom's Share button produced and convert it here.
+//   https://www.loom.com/share/<id>?t=1  ->  https://www.loom.com/embed/<id>
+//   https://www.loom.com/embed/<id>      ->  unchanged
+//   <id>                                 ->  https://www.loom.com/embed/<id>
+// Anything that is already some other provider's embed URL is passed through, so a
+// YouTube or Drive embed still works.
+const LOOM_ID = /^[0-9a-f]{32}$/i;
+
+export const toEmbedUrl = (raw) => {
+  if (!raw) return "";
+  const url = String(raw).trim();
+
+  if (LOOM_ID.test(url)) return `https://www.loom.com/embed/${url}`;
+
+  const loom = url.match(
+    /loom\.com\/(?:share|embed|v)\/([0-9a-zA-Z]+)/
+  );
+  if (loom) return `https://www.loom.com/embed/${loom[1]}`;
+
+  return url;
+};
+
+// Accept either the newer `videos: [{ url, caption }]` array or the original single
+// `videoUrl`, and normalise both to one list so the markup below has one shape to render.
+const videoList = (project) => {
+  const many = Array.isArray(project.videos) ? project.videos : [];
+  const entries = many.length
+    ? many
+    : project.videoUrl
+    ? [{ url: project.videoUrl, caption: "" }]
+    : [];
+
+  return entries
+    .map((v) => (typeof v === "string" ? { url: v, caption: "" } : v))
+    .filter((v) => v && v.url)
+    .map((v) => ({ ...v, url: toEmbedUrl(v.url) }));
+};
+
 const ProjectModal = ({ project, onClose }) => {
+  const [activeVideo, setActiveVideo] = useState(0);
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") onClose();
@@ -16,7 +57,15 @@ const ProjectModal = ({ project, onClose }) => {
     };
   }, [onClose]);
 
+  // Opening a different project must not inherit the previous one's selected clip.
+  useEffect(() => {
+    setActiveVideo(0);
+  }, [project?.name]);
+
   if (!project) return null;
+
+  const videos = videoList(project);
+  const current = videos[Math.min(activeVideo, videos.length - 1)];
 
   return createPortal(
     <AnimatePresence>
@@ -48,26 +97,44 @@ const ProjectModal = ({ project, onClose }) => {
           </button>
 
           {/* Video Section — hidden until videos are added */}
-          {project.videoUrl && (
-            <div className="w-full aspect-video bg-black-100 rounded-t-2xl overflow-hidden">
-              {project.videoUrl ? (
+          {current && (
+            <div className="rounded-t-2xl overflow-hidden">
+              <div className="w-full aspect-video bg-black-100">
                 <iframe
-                  src={project.videoUrl}
-                  title={`${project.name} video`}
+                  key={current.url}
+                  src={current.url}
+                  title={`${project.name} — ${current.caption || "walkthrough"}`}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-secondary">
-                  <svg
-                    className="w-16 h-16 mb-3 opacity-40"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                  <p className="text-sm opacity-60">Video coming soon</p>
+              </div>
+
+              {/* One button per clip. Only worth showing when there is a choice to make. */}
+              {videos.length > 1 && (
+                <div className="bg-black-100 px-4 pb-4 pt-1">
+                  <div className="flex flex-wrap gap-2">
+                    {videos.map((v, i) => (
+                      <button
+                        key={v.url}
+                        onClick={() => setActiveVideo(i)}
+                        aria-current={i === activeVideo}
+                        className={`px-3 py-1.5 text-[13px] rounded-full border transition-colors ${
+                          i === activeVideo
+                            ? "bg-[#915EFF] text-white border-transparent"
+                            : "bg-black-200 text-secondary border-white/10 hover:text-white hover:border-white/30"
+                        }`}
+                      >
+                        {v.caption || `Clip ${i + 1}`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {videos.length === 1 && current.caption && (
+                <div className="bg-black-100 px-4 pb-4 pt-2">
+                  <p className="text-secondary text-[13px]">{current.caption}</p>
                 </div>
               )}
             </div>
